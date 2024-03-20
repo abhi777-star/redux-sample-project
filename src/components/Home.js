@@ -2,21 +2,18 @@ import { useSelector } from "react-redux";
 import { Navbar } from "./Navbar";
 import { ChangeFooter } from "./ChangeFooter";
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 export const Home = () => {
   const user = useSelector((state) => state.user.value);
   const color = useSelector((state) => state.color.value);
+  const [jokeDataMessage,setjokeDataMessage] = useState("");
 
-  const {
-    data: jokeData,
-    isLoading,
-    refetch,
-  } = useQuery(["joke"], () => {
-    return axios
-      .get("https://v2.jokeapi.dev/joke/Programming?type=single")
-      .then((res) => res.data);
-  });
+  const jokeData = async () =>{
+    const res = await axios.get("https://v2.jokeapi.dev/joke/Programming?type=single");
+    setjokeDataMessage(res?.data?.joke)
+    return res
+  }
 
   return (
     <>
@@ -30,10 +27,10 @@ export const Home = () => {
           <div className="card-body">
             <h2>Welcome {user.userName}</h2>
             <strong>Wanna hear a joke?</strong>
-            <p>{isLoading ? "Loding...Joke...lol" : jokeData?.joke}</p>
+            <p>{jokeDataMessage}</p>
             <button
               className={`btn btn-sm btn-${color}`}
-              onClick={() => refetch()}
+              onClick={() => jokeData()}
             >
               Another joke? lol
             </button>

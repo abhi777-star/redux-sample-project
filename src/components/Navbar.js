@@ -9,7 +9,7 @@ export const Navbar = () => {
   const [active, setActive] = useState("");
   const location = useLocation();
   const dispatcher = useDispatch();
-
+ 
   useEffect(() => {
     setActive(location.pathname);
   }, [location]);

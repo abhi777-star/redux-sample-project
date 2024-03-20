@@ -1,4 +1,4 @@
-  import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../features/User";
 import { useState, useEffect } from "react";

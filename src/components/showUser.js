@@ -3,13 +3,12 @@ import { Navbar } from "./Navbar";
 import { NewUser } from "./newUser";
 import { useSelector } from "react-redux";
 
-export const ShowUsers = () => {
-  const color = useSelector((state) => state.color.value);
+export const ShowUser = () => {
   const usersList = useSelector((state) => state.users.value);
   return (
     <>
       <div
-        className={`vh-100 d-flex align-items-center justify-content-center bg-${color}`}
+        className={`vh-100 d-flex align-items-center justify-content-center`}
       >
         <div className="card position-absolute w-50">
           <div className="card-header">

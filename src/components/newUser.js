@@ -1,49 +1,89 @@
 import { useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { deleteUsers, updateUsers } from "../features/Users";
+import { Modal } from "antd";
 
 export const NewUser = ({ id, firstName, lastName }) => {
-  const [newFirstName, setNewFirstName] = useState("");
-  const [newLastName, setNewLastName] = useState("");
+
   let [edit, setEdit] = useState(false);
   const alertRef = useRef();
   const dispatcher = useDispatch();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [updateUserDetail, setUpadteUserDetail] = useState({
+    firstName: "",
+    lastName: "",
+  });
+
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+  });
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleOk = () => {
+      dispatcher(
+        updateUsers({
+          id,
+          firstName: updateUserDetail.firstName,
+          lastName: updateUserDetail.lastName,
+        })
+      );
+      setIsModalOpen(false)
+  };
 
   let editUser = () => {
     setEdit(!edit);
   };
+
   let [confirmDelete, setConfirmDelete] = useState(false);
 
   let confirmDeleteUser = () => {
     setConfirmDelete(!confirmDelete);
+    setEdit(false);
   };
 
-  let newUpdateUser = function () {
-    if (newFirstName === "" || newLastName === "") {
-      alertRef.current.hidden = false;
-      alertRef.current.textContent = "📢 Please fill the two inputs!";
-      alertRef.current.classList.add("bg-danger");
-      setTimeout(() => {
-        alertRef.current.hidden = true;
-      }, 2000);
+  const onBlurhandleUserDetail = (e) =>{
+    const { name, value } = e.target;
+    setUpadteUserDetail({
+      ...updateUserDetail,
+      [name]: value,
+    });
+    if (value === '') {
+      setErrors(prevErrors => ({
+          ...prevErrors,
+          [name]: `Please enter ${name === 'firstName' ? 'first' : 'last'} name`,
+      }));
     } else {
-      dispatcher(
-        updateUsers({
-          id,
-          firstName: newFirstName,
-          lastName: newLastName,
-        })
-      );
-      alertRef.current.hidden = false;
-      alertRef.current.textContent = "🎉 User updated successfuly!";
-      alertRef.current.classList.remove("bg-danger");
-      alertRef.current.classList.add("bg-success");
-      setTimeout(() => {
-        alertRef.current.hidden = true;
-      }, 2000);
-      setEdit(!edit);
-      setNewFirstName("");
-      setNewLastName("");
+        setErrors(prevErrors => ({
+            ...prevErrors,
+            [name]: '',
+        }));
+    }
+  }
+
+  const newUpdateUser = () => {
+    const { firstName, lastName } = updateUserDetail;
+    let errors = {};
+  
+    if (firstName === '') {
+      errors.firstName = 'Please enter first name';
+    }
+  
+    if (lastName === '') {
+      errors.lastName = 'Please enter last name';
+    }
+  
+    if (Object.keys(errors).length > 0) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        ...errors,
+      }));
+    }else{
+      setIsModalOpen(true)
     }
   };
 
@@ -75,23 +115,39 @@ export const NewUser = ({ id, firstName, lastName }) => {
             </button>
           </div>
         </div>
+        <Modal
+                centered 
+                open={isModalOpen} 
+                onOk={handleOk} 
+                onCancel={handleCancel}>
+            <h3>Change User to {updateUserDetail.firstName} {updateUserDetail.lastName} </h3>
+            <div>Are you sure you want to change the old user ({firstName} {lastName}) to {updateUserDetail.firstName} {updateUserDetail.lastName} </div>
+          </Modal>
         {edit ? (
           <div className="input-group input-group-sm mt-2">
+            <div className="form-input-cntrl">
             <input
               type="text"
-              className="form-control rounded-pill"
+              className={`form-control form-input rounded-pill ${errors.firstName ? 'input-error' : ''}`}
               placeholder={firstName}
-              onChange={(e) => setNewFirstName(e.target.value)}
+              name="firstName"
+              onBlur={(e) => onBlurhandleUserDetail(e)}
             />
+            {errors.firstName && <div className="error-message">{errors.firstName}</div>}
+            </div>
+            <div>
             <input
               type="text"
-              className="form-control rounded-pill"
+              className={`form-control rounded-pill ${errors.lastName ? 'input-error' : ''}`}
               placeholder={lastName}
-              onChange={(e) => setNewLastName(e.target.value)}
+              name="lastName"
+              onBlur={(e) => onBlurhandleUserDetail(e)}
             />
+            {errors.lastName && <div className="error-message">{errors.lastName}</div>}
+            </div>
             <button
               type="button"
-              className="btn rounded-pill btn-dark btn-sm"
+              className="btn rounded-pill btn-dark btn-sm btn-update"
               onClick={newUpdateUser}
             >
               Update

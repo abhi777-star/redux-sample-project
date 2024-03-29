@@ -1,22 +1,43 @@
 import { useDispatch } from "react-redux";
 import { useState } from "react";
 import { login } from "../features/User";
-import { change } from "../features/Color";
+import { Modal } from "antd";
+import { useNavigate } from "react-router-dom";
 
 export const ChangeFooter = () => {
   const dispatcher = useDispatch();
   const [inputChange, setInputChange] = useState("");
-  const colors = [
-    "primary",
-    "secondary",
-    "success",
-    "danger",
-    "warning",
-    "info",
-    "light",
-    "dark",
-    "white",
-  ];
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate()
+
+
+  const handleOnBlur = () => {
+    if (inputChange === "") {
+      setError('Please enter a username');
+    } else {
+      setError("");
+    }
+  };
+  
+  const handleOk = () => {
+    if (inputChange === '') {
+      setError('Please enter a username');
+    } else {
+      setError('');
+      setIsModalOpen(true);
+    }
+  };
+  
+  const handleModalOk = () => {
+    dispatcher(login({ userName: inputChange }));
+    setIsModalOpen(false);
+    navigate('/');
+  };
+  
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <>
@@ -24,46 +45,27 @@ export const ChangeFooter = () => {
         <div className="input-group input-group-sm">
           <input
             type="text"
-            className="form-control"
+            className={`form-control form-footer rounded-pill ${error ? 'input-error' : ''}`}
             placeholder="change your..."
             onChange={(e) => setInputChange(e.target.value)}
+            onBlur={handleOnBlur}
           />
+           {error && <div className="error-message">{error}</div>}
           <button
-            className="btn btn-outline-secondary btn-sm"
+            className="btn btn-outline-secondary btn-sm btn-footer rounded-pill"
             type="button"
-            onClick={() =>
-              inputChange !== "" && dispatcher(login({ userName: inputChange }))
-            }
+            onClick={() =>handleOk()}
           >
             Username
           </button>
-          <button
-            className="btn btn-outline-secondary dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            Color
-          </button>
-          <ul className="dropdown-menu p-0">
-            <div className="row g-0">
-              {colors.map((c) => {
-                return (
-                  <div
-                    key={colors.indexOf(c)}
-                    className="col"
-                    style={{ height: "20px", width: "20px" }}
-                  >
-                    <button
-                      className={`dropdown-item bg-${c} border border-dark`}
-                      onClick={() => dispatcher(change(c))}
-                      style={{ height: "20px", width: "20px" }}
-                    ></button>
-                  </div>
-                );
-              })}
-            </div>
-          </ul>
+
+          <Modal
+                centered 
+                open={isModalOpen} 
+                onOk={handleModalOk} 
+                onCancel={handleCancel}>
+            <h3>Do you want to change your username to {inputChange}</h3>
+          </Modal>
         </div>
       </div>
     </>

@@ -1,0 +1,56 @@
+body {
+    background-color: #f4f1ea;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+h3 {
+	font-weight: normal;
+	color: white;
+	font-family: 'Hammersmith One', sans-serif;
+	text-shadow: 0 -1px 0 rgba(0,0,0,0.4);
+	position: relative;
+	color: #6Cf;
+  }
+
+.bg-color,.bg-color:hover {
+    background-color: blue;
+    color: white;
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.input-error {
+    border: 1px solid red;
+}
+
+.input-group {
+    display: unset;
+    /* width: 40%; */
+}
+
+.input-group>.form-control, .input-group>.form-floating, .input-group>.form-select{
+    width: 40%;
+}
+
+/* .justify-content-between{
+    margin-bottom: 20px;
+} */
+
+.form-footer,.btn-footer,.btn-update{
+    margin-top: 20px;
+}
+
+.form-input{
+    margin-top: 20px;
+}
+
+.form-input-cntrl{
+    margin-bottom: 20px;
+}

@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 let UsersData = [{ id: 1, firstName: "Abhishek", lastName: "Gautam" }];
+
 export const UsersSlice = createSlice({
   name: "Users",
   initialState: { value: UsersData },
@@ -12,12 +13,15 @@ export const UsersSlice = createSlice({
       state.value = state.value.filter((user) => user.id !== action.payload.id);
     },
     updateUsers: (state, action) => {
-      state.value.map((user) => {
+      state.value = state.value.map((user) => {
         if (user.id === action.payload.id) {
-          user.firstName = action.payload.firstName;
-          user.lastName = action.payload.lastName;
-          return;
+          return {
+            ...user,
+            firstName: action.payload.firstName,
+            lastName: action.payload.lastName
+          };
         }
+        return user;
       });
     },
   },

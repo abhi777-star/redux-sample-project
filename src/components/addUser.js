@@ -1,50 +1,87 @@
-import { useState, useRef } from "react";
+import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { addUsers } from "../features/Users";
 import { ChangeFooter } from "./ChangeFooter";
 import { Navbar } from "./Navbar";
 import { useSelector, useDispatch } from "react-redux";
+import { Modal } from 'antd';
 
 export const AddUser = () => {
-  const color = useSelector((state) => state.color.value);
   const dispatcher = useDispatch();
   const usersList = useSelector((state) => state.users.value);
-  const [firstName, setfirstName] = useState("");
-  const [lastName, setlastName] = useState("");
-  const alertRef = useRef();
+  const navigate = useNavigate()
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  let newUser = function () {
-    if (firstName === "" || lastName === "") {
-      alertRef.current.hidden = false;
-      alertRef.current.textContent = "📢 Please fill the two inputs!";
-      alertRef.current.classList.add("alert-danger");
-      setTimeout(() => {
-        alertRef.current.hidden = true;
-      }, 2000);
-      return;
+  const [userDetail, setUserDetail] = useState({
+    firstName: "",
+    lastName: "",
+  });
+
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+  });
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleOk = () => {
+    const { firstName, lastName } = userDetail;
+    let user = {
+      id: usersList.length !== 0 ? usersList[usersList.length - 1].id + 1 : 1,
+      firstName: firstName,
+      lastName: lastName,
+    };
+    dispatcher(addUsers(user));
+    navigate('/showUser');
+  };
+
+  const onBlurhandleUserDetail = (e) =>{
+    const { name, value } = e.target;
+    setUserDetail({
+      ...userDetail,
+      [name]: value,
+    });
+    if (value === '') {
+      setErrors(prevErrors => ({
+          ...prevErrors,
+          [name]: `Please enter ${name === 'firstName' ? 'first' : 'last'} name`,
+      }));
     } else {
-      let user = {
-        id: usersList.length !== 0 ? usersList[usersList.length - 1].id + 1 : 1,
-        firstName: firstName,
-        lastName: lastName,
-      };
-      dispatcher(addUsers(user));
-      alertRef.current.classList.remove("alert-danger");
+        setErrors(prevErrors => ({
+            ...prevErrors,
+            [name]: '',
+        }));
+    }
+  }
 
-      alertRef.current.hidden = false;
-      alertRef.current.textContent = "🎉 User added successfuly!";
-      alertRef.current.classList.add("alert-success");
-      // setTimeout(() => {
-      //   alertRef.current.hidden = true;
-      // }, 2000);
-      setfirstName("");
-      setlastName("");
+  const addUserDetails = () => {
+    const { firstName, lastName } = userDetail;
+    let errors = {};
+  
+    if (firstName === '') {
+      errors.firstName = 'Please enter first name';
+    }
+  
+    if (lastName === '') {
+      errors.lastName = 'Please enter last name';
+    }
+  
+    if (Object.keys(errors).length > 0) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        ...errors,
+      }));
+    }else{
+      setIsModalOpen(true)
     }
   };
 
   return (
     <>
       <div
-        className={`vh-100 d-flex align-items-center justify-content-center bg-${color}`}
+        className={`vh-100 d-flex align-items-center justify-content-center`}
       >
         <div className="card position-absolute w-50">
           <div className="card-header">
@@ -52,51 +89,47 @@ export const AddUser = () => {
           </div>
           <div className="card-body">
             <div className="d-block">
-              <div className="Items">
-                <h1>Enter user_s infos</h1>
-                <div ref={alertRef} className="alert" hidden></div>
-                <div className="mb-3 mt-3">
-                  <input
+            <div className="Items">
+            <h1>Enter user's info</h1>
+            <div className="mb-3 mt-3">
+                <input
                     type="text"
-                    className="form-control"
+                    className={`form-control rounded-pill ${errors.firstName ? 'input-error' : ''}`}
                     placeholder="first name"
-                    onChange={(e) => setfirstName(e.target.value)}
-                    onBlur={(e) => {
-                      if (e.target.value === "") {
-                        e.target.classList.add("border-danger");
-                      } else {
-                        e.target.classList.remove("border-danger");
-                        e.target.classList.add("border-success");
-                      }
-                    }}
-                  />
-                </div>
-                <div className="mb-3">
-                  <input
+                    name="firstName"
+                    id="firstName"
+                    onBlur={(e) => onBlurhandleUserDetail(e)}
+                />
+                 {errors.firstName && <div className="error-message">{errors.firstName}</div>}
+            </div>
+            <div className="mb-3">
+                <input
                     type="text"
-                    className="form-control"
+                    className={`form-control rounded-pill ${errors.lastName ? 'input-error' : ''}`}
                     placeholder="last name"
-                    onChange={(e) => setlastName(e.target.value)}
-                    onBlur={(e) => {
-                      if (e.target.value === "") {
-                        e.target.classList.add("border-danger");
-                      } else {
-                        e.target.classList.remove("border-danger");
-                        e.target.classList.add("border-success");
-                      }
-                    }}
-                  />
-                </div>
-                <div className="mb-3">
-                  <button
+                    name="lastName"
+                    onBlur={(e) => onBlurhandleUserDetail(e)}
+                />
+                {errors.lastName && <div className="error-message">{errors.lastName}</div>}
+            </div>
+            <div className="mb-3">
+                <button
                     type="button"
-                    className={`btn w-100 btn-sm btn-${color}`}
-                    onClick={newUser}
-                  >
+                    className={`btn w-100 btn-sm bg-color`}
+                    onClick={(e) => addUserDetails(e)}
+                >
                     Add user
-                  </button>
-                </div>
-              </div>
+                </button>
+            </div>
+          <Modal
+                centered 
+                open={isModalOpen} 
+                onOk={handleOk} 
+                onCancel={handleCancel}>
+            <h3>Do you want to add this user</h3>
+            <div>{userDetail.firstName}  {userDetail?.lastName}</div>
+          </Modal>
+        </div>
             </div>
           </div>
           <ChangeFooter />
@@ -105,3 +138,4 @@ export const AddUser = () => {
     </>
   );
 };
+

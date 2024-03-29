@@ -1,24 +1,22 @@
 import { Home } from "./components/Home";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { ShowUsers } from "./components/showUser";
+import { ShowUser } from "./components/showUser";
 import { AddUser } from "./components/addUser";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import "./global.css"
 
 function App() {
-  const client = new QueryClient();
-
   return (
-    <QueryClientProvider client={client}>
-      <Router>
+    <BrowserRouter>
+      <>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/showUsers" element={<ShowUsers />} />
+          <Route path="/showUser" element={<ShowUser />} />
           <Route path="/addUser" element={<AddUser />} />
         </Routes>
-      </Router>
-    </QueryClientProvider>
+      </>
+    </BrowserRouter>
   );
 }
 
